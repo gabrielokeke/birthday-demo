@@ -1,65 +1,156 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
+import { Gift } from "lucide-react"
+
+export default function PasswordPage() {
+  const [password, setPassword] = useState("")
+  const [status, setStatus] = useState<"idle" | "error" | "success" | "loading">("idle")
+  const [mounted, setMounted] = useState(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (password === "Manolix") {
+      setStatus("success")
+      setTimeout(() => setStatus("loading"), 1000)
+      setTimeout(() => {
+        localStorage.setItem("auth", "true")
+        router.push("/page1")
+      }, 2500)
+    } else {
+      setStatus("error")
+    }
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main className="min-h-screen bg-black relative flex items-center justify-center px-6 text-white overflow-hidden">
+
+      {/* Background image */}
+      <div 
+        className="absolute inset-0 bg-center bg-no-repeat z-0"
+        style={{ 
+          backgroundImage: "url('/bd.jpg')",
+          backgroundSize: "cover"
+        }} 
+      />
+
+      {/* Birthday gradient overlay */}
+      <div className="absolute inset-0 bg-linear-to-b from-black/80 via-yellow-900/40 to-black/80 z-0" />
+
+      {/* Floating gifts */}
+      {mounted && (
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          {[...Array(8)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-yellow-400/20"
+              initial={{ 
+                x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
+                y: (typeof window !== 'undefined' ? window.innerHeight : 1000) + 50,
+                rotate: Math.random() * 360 
+              }}
+              animate={{ 
+                y: -100,
+                x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
+                rotate: Math.random() * 360 + 360
+              }}
+              transition={{
+                duration: 15 + Math.random() * 10,
+                repeat: Infinity,
+                delay: i * 2,
+                ease: "linear"
+              }}
+            >
+              <Gift className="w-8 h-8" fill="currentColor" />
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.2 }}
+        className="relative z-10 w-full max-w-md"
+      >
+
+        {/* Birthday header */}
+        <div className="text-center mb-12 space-y-4">
+
+          <Gift className="w-12 h-12 mx-auto text-yellow-400 mb-4" fill="currentColor" />
+
+          <h1 className="text-4xl md:text-5xl font-light tracking-wider">
+            Happy Birthday
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+          <p className="text-lg text-white/70 italic">
+            A special message written just for your birthday
           </p>
+
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6 backdrop-blur-sm bg-white/5 p-8 rounded-2xl border border-white/10 shadow-2xl"
+        >
+
+          <div className="space-y-2">
+
+            <label className="text-sm text-white/80 uppercase">
+              Enter the password
+            </label>
+
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg bg-white/10 text-white outline-none border border-white/20 focus:border-yellow-400/50"
+              disabled={status === "loading"}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-linear-to-r from-yellow-400 to-yellow-600 text-black py-3 rounded-lg hover:from-yellow-500 hover:to-yellow-700 transition-all uppercase text-sm"
+            disabled={status === "loading"}
           >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+
+            {status === "loading"
+              ? "Preparing your birthday surprise..."
+              : "Unlock"}
+              
+          </button>
+
+          {status === "error" && (
+            <p className="text-yellow-300 text-sm text-center italic">
+              Not quite right... Try again, birthday star.
+            </p>
+          )}
+
+          {status === "success" && (
+            <p className="text-green-300 text-sm text-center italic">
+              Perfect... Your birthday surprise awaits.
+            </p>
+          )}
+
+        </form>
+
+        <p className="text-center mt-8 text-white/50 text-sm italic">
+          Every word here was written to celebrate you 🎉
+        </p>
+
+      </motion.div>
+
+    </main>
+  )
 }
