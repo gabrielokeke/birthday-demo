@@ -18,7 +18,7 @@ export default function PasswordPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (password === "Manolix") {
+    if (password === "demo123") {
       setStatus("success")
       setTimeout(() => setStatus("loading"), 1000)
       setTimeout(() => {
